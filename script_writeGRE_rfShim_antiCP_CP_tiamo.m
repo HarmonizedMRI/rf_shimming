@@ -5,8 +5,6 @@
 
 clear
 
-addpath(genpath('/autofs/cluster/berkin/berkin/Matlab_Code_New/PULSEQ/rf_shimming/pulseq-dev/'))
-
 Gmax = 40;
 Smax = 120;
 
@@ -28,12 +26,10 @@ thickness = 5e-3;            % slice
 Nslices = 16;                
 
 
-% chan_select = 7;
 chan_select = 1:8;
 
 % cp mode:
 % phases = [0, -45, -90, -135, 180, 135, 90, 45];
-
 
 shim1 = exp(+1j*2*pi/8*[0:7]); % anti cp
 shim2 = exp(-1j*2*pi/8*[0:7]); % cp
@@ -171,7 +167,7 @@ for s = 1:Nslices
             spoilBlockContents={mr.makeDelay(delayTR(c)),gxSpoil,gyPre,gzSpoil}; % here we demonstrate the technique to combine variable counter-dependent content into the same block
 
             if t == 4
-                % mode == 3, reset echo counter for the next line
+                % if mode == 4, reset echo counter for the next line
                 spoilBlockContents=[spoilBlockContents {mr.makeLabel('SET','ECO', 0)}];
     
                 if i~=Ny
@@ -198,14 +194,6 @@ toc
 % prepare sequence export
 % -------------------------------------------------------------------------
 
-foldername = ['/autofs/cluster/berkin/berkin/Matlab_Code_New/PULSEQ/rf_shimming/',  datestr(datetime('today')), '/' ];
-
-if ~isfolder(foldername)
-    mkdir(foldername)
-    disp('folder created')
-else
-    disp('folder exists')
-end
 
 seq.setDefinition('FOV', [fov fov thickness*Nslices]);
 seq.setDefinition('TE', TE) ;  
@@ -215,7 +203,7 @@ seq.setDefinition('ReceiverGainHigh',1);
 
 seq.setDefinition('Name', 'gre_rfshim_tiamo');
 
-seq.write([foldername, 'gre_lbl_rfshim_RF5ms_8ch_4modes_chan_',num2str(chan_select),'.seq'])       % Write to pulseq file
+seq.write(['gre_lbl_rfshim_4modes.seq'])       % Write to pulseq file
 
 
 % -------------------------------------------------------------------------
@@ -266,6 +254,3 @@ end
 legend(lbl_names(2:end-1));
 title('evolution of labels/counters/flags');
 xlabel('adc number');
-
-
-%%
