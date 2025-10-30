@@ -7,19 +7,6 @@
 % TODO, readout partial fourier
 % FIXME, add dTE shift for 2nd echo
 
-addpath /autofs/cluster/berkin/xingwang/Syncbb/repos/customized-pulseq-functions
-addpath /autofs/cluster/berkin/xingwang/Syncbb/repos/my-matlab-utils
-addpath /autofs/cluster/berkin/xingwang/Syncbb/others_toolboxes/safe_pns_prediction
-addpath /autofs/cluster/berkin/xingwang/Syncbb/share/epidiff/utils
-
-addpath /autofs/cluster/berkin/berkin/Matlab_Code_New/PULSEQ/rf_shimming
-
-% addpath /autofs/cluster/berkin/xingwang/Syncbb/others_toolboxes/pulseq_matlab_diff_versions/pulseq_v142/matlab/
-
-% include the version of pulseq toolbox for rf shimming [pulseq-dev]
-addpath(genpath('/autofs/cluster/berkin/berkin/Matlab_Code_New/PULSEQ/rf_shimming/pulseq-dev/'))
-
-
 clear
 closeall
 
@@ -37,6 +24,7 @@ shim1 = shim1 / norm(shim1);
 shim2 = shim2 / norm(shim2);
 shim3 = shim3 / norm(shim3);
 
+shim2use = 2;        % select CP mode
 
 shim_vector1 = zeros(1,8);
 shim_vector2 = zeros(1,8);
@@ -794,9 +782,15 @@ for iterFrame = 1:nFrames
             end
             
             if isFatSat
-                % seq.addBlock(rf,gz,mr.makeRfShim(shim_vector2));
-                % seq.addBlock(rf,gz,mr.makeRfShim(shim_vector3));
-                seq.addBlock(rf,gz,mr.makeRfShim(shim_vector1));
+                if shim2use == 1
+                    seq.addBlock(rf180,gz180,mr.makeRfShim(shim_vector1));
+                else
+                    if shim2use == 2 
+                       seq.addBlock(rf180,gz180,mr.makeRfShim(shim_vector2));
+                   else
+                        seq.addBlock(rf180,gz180,mr.makeRfShim(shim_vector3));
+                    end
+                end
             else
                 seq.addBlock(rf,gz,lblTRID);
             end
@@ -808,9 +802,15 @@ for iterFrame = 1:nFrames
                 seq.addBlock(gz180_crusher_1,gz180_crusher_2,gz180_crusher_3);
                 t_start_crusher_left = prevBlcokStartTime(seq);
                 
-                % seq.addBlock(rf180,gz180,mr.makeRfShim(shim_vector2));
-                % seq.addBlock(rf180,gz180,mr.makeRfShim(shim_vector3));
-                seq.addBlock(rf180,gz180,mr.makeRfShim(shim_vector1));
+                if shim2use == 1
+                    seq.addBlock(rf180,gz180,mr.makeRfShim(shim_vector1));
+                else
+                    if shim2use == 2 
+                       seq.addBlock(rf180,gz180,mr.makeRfShim(shim_vector2));
+                   else
+                        seq.addBlock(rf180,gz180,mr.makeRfShim(shim_vector3));
+                    end
+                end
 
                 seq.addBlock(gz180_crusher_1,gz180_crusher_2,gz180_crusher_3);
                 t_start_crusher_right = prevBlcokStartTime(seq);
@@ -829,10 +829,16 @@ for iterFrame = 1:nFrames
                 end                   
             else            
                 seq.addBlock(mr.makeDelay(delayTE1),mr.scaleGrad(gDiff_x,bScale),mr.scaleGrad(gDiff_y,bScale),mr.scaleGrad(gDiff_z,bScale));
-            
-                % seq.addBlock(rf180,gz180,mr.makeRfShim(shim_vector2));
-                % seq.addBlock(rf180,gz180,mr.makeRfShim(shim_vector3));
-                seq.addBlock(rf180,gz180,mr.makeRfShim(shim_vector1));
+
+                if shim2use == 1
+                    seq.addBlock(rf180,gz180,mr.makeRfShim(shim_vector1));
+                else
+                    if shim2use == 2 
+                       seq.addBlock(rf180,gz180,mr.makeRfShim(shim_vector2));
+                   else
+                        seq.addBlock(rf180,gz180,mr.makeRfShim(shim_vector3));
+                    end
+                end
                 
                 seq.addBlock(mr.makeDelay(delayTE2),mr.scaleGrad(gDiff_x,bScale),mr.scaleGrad(gDiff_y,bScale),mr.scaleGrad(gDiff_z,bScale));
             end
@@ -1121,4 +1127,5 @@ end
 if ~isTestRun
     return
 end
+
 
