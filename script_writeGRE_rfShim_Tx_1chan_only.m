@@ -5,8 +5,6 @@
 
 clear
 
-addpath(genpath('/autofs/cluster/berkin/berkin/Matlab_Code_New/PULSEQ/rf_shimming/pulseq-dev/'))
-
 Gmax = 40;
 Smax = 120;
 
@@ -32,12 +30,6 @@ chan_select = 4;
 % cp mode:
 % phases = [0, -45, -90, -135, 180, 135, 90, 45];
 
-% shim1 = exp(+1j*2*pi/8*[1:8]);
-% shim2 = exp(-1j*2*pi/8*[1:8]);
-
-% it is possible to approximate the CP mode when 8chan formalism is used
-% with shim2. however, aren't only channels 1, 3, 5,7  active in this case
-% since 1:2:15 is needed to access all 8 Tx channels?
 shim1 = exp(+1j*2*pi/8*[0:7]);
 shim2 = exp(-1j*2*pi/8*[0:7]);
 
@@ -48,9 +40,6 @@ shim2 = shim2 / norm(shim2);
 shim_vector1 = zeros(1,8);
 shim_vector2 = zeros(1,8);
 
-% use chan 1:2:15 and skip even indices
-% shim_vector1(1+2*(chan_select-1)) = shim1(chan_select);
-% shim_vector2(1+2*(chan_select-1)) = shim2(chan_select);
 
 shim_vector1(chan_select) = shim1(chan_select);
 shim_vector2(chan_select) = shim2(chan_select);
@@ -160,7 +149,7 @@ for s = 1:Nslices
             spoilBlockContents={mr.makeDelay(delayTR(c)),gxSpoil,gyPre,gzSpoil}; % here we demonstrate the technique to combine variable counter-dependent content into the same block
 
             if t == 2
-                % tiamo == 2, reset echo counter for the next line
+                % t == 2, reset echo counter for the next line
                 spoilBlockContents=[spoilBlockContents {mr.makeLabel('SET','ECO', 0)}];
     
                 if i~=Ny
@@ -187,15 +176,6 @@ toc
 % prepare sequence export
 % -------------------------------------------------------------------------
 
-foldername = ['/autofs/cluster/berkin/berkin/Matlab_Code_New/PULSEQ/rf_shimming/',  datestr(datetime('today')), '/' ];
-
-if ~isfolder(foldername)
-    mkdir(foldername)
-    disp('folder created')
-else
-    disp('folder exists')
-end
-
 seq.setDefinition('FOV', [fov fov thickness*Nslices]);
 seq.setDefinition('TE', TE) ;  
 seq.setDefinition('TR', TR) ;
@@ -204,7 +184,7 @@ seq.setDefinition('ReceiverGainHigh',1);
 
 seq.setDefinition('Name', 'gre_rfshim_tiamo');
 
-seq.write([foldername, 'gre_lbl_rfshim_8ch_shim2use_1and2_chan_',num2str(chan_select),'.seq'])       % Write to pulseq file
+seq.write(['gre_lbl_rfshim_chan_',num2str(chan_select),'.seq'])       % Write to pulseq file
 
 
 % -------------------------------------------------------------------------
@@ -257,4 +237,4 @@ title('evolution of labels/counters/flags');
 xlabel('adc number');
 
 
-%%
+
