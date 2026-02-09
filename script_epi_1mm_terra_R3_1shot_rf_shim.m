@@ -655,7 +655,7 @@ for iterFrame = 1:nFrames
         
         delayTE1=ceil((TE/2 - mr.calcDuration(rf,gz) + rfCenterInclDelay - mr.calcDuration(gzReph) -  rf180centerInclDelay)/lims.gradRasterTime)*lims.gradRasterTime;
         % we do not need to include ETS in delayTE2 calculation, since delayTE2 is defined in 1st shot, where there is not ETS
-        delayTE2=ceil((TE/2 - mr.calcDuration(rf180,gz180) + rf180centerInclDelay - mr.calcDuration(trig) - delay_after_trig- durationToCenter)/lims.gradRasterTime)*lims.gradRasterTime;
+        delayTE2=ceil((TE/2 - mr.calcDuration(rf180,gz180) + rf180centerInclDelay - mr.calcDuration(trig) - delay_after_trig - mr.calcDuration(gxPre,gyPre) - durationToCenter)/lims.gradRasterTime)*lims.gradRasterTime;
         assert(delayTE1>=0);
         assert(delayTE2>=0);
         
@@ -1127,5 +1127,6 @@ end
 if ~isTestRun
     return
 end
+
 
 
